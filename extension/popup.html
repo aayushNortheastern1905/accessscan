@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      min-height: 200px;
+      background: #08090e;
+      color: #f9fafb;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .logo { font-size: 15px; font-weight: 800; letter-spacing: -0.03em; }
+    .logo span { color: #6366f1; }
+    .store-url { font-size: 11px; color: #6b7280; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Setup screen ── */
+    #setup { padding: 24px 16px; }
+    #setup h2 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    #setup p { color: #6b7280; font-size: 12px; margin-bottom: 16px; line-height: 1.5; }
+    .input-row { display: flex; gap: 8px; }
+    .input-row input {
+      flex: 1; padding: 8px 10px; border-radius: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      color: #f9fafb; font-size: 12px; outline: none;
+    }
+    .input-row input:focus { border-color: rgba(99,102,241,0.6); }
+    .btn-save {
+      padding: 8px 14px; border-radius: 8px;
+      background: #6366f1; color: #fff;
+      border: none; font-size: 12px; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
+    }
+    .hint { margin-top: 10px; font-size: 11px; color: #4b5563; }
+    .hint a { color: #6366f1; text-decoration: none; }
+
+    /* ── Scanning screen ── */
+    #scanning { padding: 28px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(99,102,241,0.2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .scan-label { font-size: 13px; font-weight: 500; color: #e5e7eb; }
+    .scan-url { font-size: 11px; color: #6366f1; }
+    .steps { width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #374151; }
+    .step.done { color: #6b7280; }
+    .step.active { color: #e5e7eb; font-weight: 500; }
+    .step-dot {
+      width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1);
+      font-size: 9px;
+    }
+    .step.done .step-dot { background: #6366f1; border-color: #6366f1; }
+    .step.active .step-dot { border-color: #6366f1; background: rgba(99,102,241,0.2); }
+
+    /* ── Results screen ── */
+    #results { display: flex; flex-direction: column; }
+    .score-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .score-circle-wrap { position: relative; flex-shrink: 0; }
+    .score-num {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .score-num span:first-child { font-size: 22px; font-weight: 800; letter-spacing: -0.04em; }
+    .score-num span:last-child { font-size: 9px; color: #6b7280; }
+    .score-info { flex: 1; }
+    .grade-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .grade-badge {
+      padding: 2px 10px; border-radius: 999px;
+      font-size: 14px; font-weight: 800;
+    }
+    .metrics { display: flex; gap: 10px; }
+    .metric { text-align: center; }
+    .metric-val { font-size: 16px; font-weight: 700; }
+    .metric-lbl { font-size: 10px; color: #6b7280; margin-top: 1px; }
+
+    /* violations list */
+    .violations-header {
+      padding: 10px 16px 6px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #4b5563;
+    }
+    .violation-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 8px 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .sev-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      margin-top: 4px; flex-shrink: 0;
+    }
+    .violation-text { flex: 1; }
+    .violation-cat { font-size: 10px; font-weight: 600; margin-bottom: 1px; }
+    .violation-desc { font-size: 11px; color: #9ca3af; line-height: 1.4; }
+    .sev-badge {
+      font-size: 9px; font-weight: 700; padding: 1px 5px;
+      border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* open report button */
+    .open-btn {
+      margin: 10px 16px 14px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px;
+      background: linear-gradient(135deg, #6366f1, #5C6AC4);
+      color: #fff; border: none; border-radius: 10px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .open-btn:hover { opacity: 0.88; }
+
+    /* error */
+    #error { padding: 20px 16px; }
+    .error-box {
+      padding: 12px; border-radius: 10px;
+      background: rgba(220,38,38,0.12); border: 1px solid rgba(220,38,38,0.25);
+      color: #fca5a5; font-size: 12px; line-height: 1.5; margin-bottom: 12px;
+    }
+    .btn-back {
+      width: 100%; padding: 9px; border-radius: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: #e5e7eb; font-size: 12px; font-weight: 500; cursor: pointer;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Header (always visible) -->
+  <div class="header">
+    <div class="logo">Access<span>Scan</span></div>
+    <div class="store-url" id="store-url"></div>
+  </div>
+
+  <!-- Setup screen -->
+  <div id="setup">
+    <h2>Enter your Groq API key</h2>
+    <p>Get a free key at console.groq.com — takes 30 seconds.</p>
+    <div class="input-row">
+      <input id="api-key-input" type="password" placeholder="gsk_..." />
+      <button class="btn-save" id="save-key">Save</button>
+    </div>
+    <p class="hint">Key is stored locally in your browser. Never sent anywhere except Groq.</p>
+  </div>
+
+  <!-- Scanning screen -->
+  <div id="scanning" class="hidden">
+    <div class="spinner"></div>
+    <div class="scan-label">Auditing store...</div>
+    <div class="steps" id="steps-list"></div>
+  </div>
+
+  <!-- Results screen -->
+  <div id="results" class="hidden">
+    <div class="score-row">
+      <div class="score-circle-wrap">
+        <svg id="score-svg" width="80" height="80" style="transform:rotate(-90deg)">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="#1f2937" stroke-width="7"/>
+          <circle id="score-arc" cx="40" cy="40" r="32" fill="none" stroke="#6366f1"
+            stroke-width="7" stroke-linecap="round"
+            stroke-dasharray="201" stroke-dashoffset="201"/>
+        </svg>
+        <div class="score-num">
+          <span id="score-val">0</span>
+          <span>/100</span>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="grade-row">
+          <div class="grade-badge" id="grade-badge">—</div>
+          <div style="font-size:12px;color:#9ca3af;">Accessibility Grade</div>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-val" id="total-count">0</div>
+            <div class="metric-lbl">Violations</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val" style="color:#DC2626" id="critical-count">0</div>
+            <div class="metric-lbl">Critical</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="violations-header">Top violations</div>
+    <div id="violations-list"></div>
+    <button class="open-btn" id="open-report">
+      Open Full Report →
+    </button>
+  </div>
+
+  <!-- Error screen -->
+  <div id="error" class="hidden">
+    <div class="error-box" id="error-msg"></div>
+    <button class="btn-back" id="err-back">← Try again</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

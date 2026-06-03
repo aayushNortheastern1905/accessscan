@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "AccessScan — Shopify Accessibility Auditor",
+  "version": "1.0.0",
+  "description": "Instant WCAG 2.1 audit for any Shopify store. Powered by Groq AI.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://api.groq.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AccessScan"
+  }
+}
