@@ -87,7 +87,7 @@ export default function ScanningScreen({ url, onComplete, onError }: Props) {
         if (!cancelled) {
           const msg = err instanceof Error ? err.message : 'Scan failed';
           setErrorMsg(msg);
-          onError(msg);
+          // Don't redirect immediately — let user read the error first
         }
       }
     }
@@ -150,9 +150,17 @@ export default function ScanningScreen({ url, onComplete, onError }: Props) {
       </div>
 
       {errorMsg && (
-        <div className="mt-8 px-4 py-3 rounded-lg text-sm"
-          style={{ background: 'rgba(220,38,38,0.15)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.3)' }}>
-          {errorMsg}
+        <div className="mt-8 flex flex-col items-center gap-4 max-w-sm text-center">
+          <div className="px-4 py-3 rounded-lg text-sm w-full"
+            style={{ background: 'rgba(220,38,38,0.15)', color: '#fca5a5', border: '1px solid rgba(220,38,38,0.3)' }}>
+            {errorMsg}
+          </div>
+          <button
+            onClick={() => onError(errorMsg)}
+            className="px-5 py-2 rounded-lg text-sm font-medium"
+            style={{ background: 'rgba(255,255,255,0.08)', color: '#e5e7eb', border: '1px solid rgba(255,255,255,0.15)' }}>
+            ← Try another store
+          </button>
         </div>
       )}
     </main>
