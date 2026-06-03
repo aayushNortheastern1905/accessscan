@@ -276,6 +276,9 @@ async function init() {
     await new Promise(r => setTimeout(r, 400));
     show('results');
     renderResults(url, violations, score, grade);
+    document.getElementById('open-report').onclick = () => {
+      chrome.tabs.create({ url: 'http://localhost:5173' });
+    };
 
   } catch (err) {
     document.getElementById('error-msg').textContent = err.message || 'Scan failed. Make sure you are on a web page.';
