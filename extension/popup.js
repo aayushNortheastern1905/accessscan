@@ -277,7 +277,7 @@ async function init() {
     show('results');
     renderResults(url, violations, score, grade);
     document.getElementById('open-report').onclick = () => {
-      chrome.tabs.create({ url: 'http://localhost:5173' });
+      chrome.tabs.create({ url: `http://localhost:5173?url=${encodeURIComponent(url)}` });
     };
 
   } catch (err) {
