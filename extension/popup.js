@@ -237,9 +237,6 @@ function renderResults(url, violations, score, grade) {
     </div>
   `).join('');
 
-  document.getElementById('open-report').onclick = () => {
-    chrome.tabs.create({ url: `https://accessscan.vercel.app` });
-  };
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
