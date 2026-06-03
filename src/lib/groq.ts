@@ -1,10 +1,6 @@
-import Groq from 'groq';
 import type { AuditResult, Violation } from '../types';
 
-const client = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY as string,
-  dangerouslyAllowBrowser: true,
-});
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 export async function runGroqAudit(
   url: string,
@@ -43,14 +39,24 @@ Return ONLY a JSON object — no markdown, no prose — matching this exact sche
   "top_fixes": ["priority fix 1", "fix 2", "fix 3"]
 }`;
 
-  const completion = await client.chat.completions.create({
-    model: 'llama3-70b-8192',
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.1,
-    max_tokens: 4096,
+  const res = await fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'llama3-70b-8192',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.1,
+      max_tokens: 4096,
+    }),
   });
 
-  const raw = completion.choices[0]?.message?.content ?? '';
+  if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
+
+  const data = await res.json();
+  const raw: string = data.choices?.[0]?.message?.content ?? '';
 
   let parsed: Omit<AuditResult, 'url' | 'scannedAt'>;
   try {
